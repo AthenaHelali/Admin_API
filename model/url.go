@@ -1,5 +1,5 @@
 package model
 
 type URL struct {
-	URL string
+	url string
 }
