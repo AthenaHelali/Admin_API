@@ -1,0 +1,37 @@
+version: "3.7"
+services:
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: postgres
+      POSTGRES_USER: admin
+    networks:
+      - arcaptcha-network
+    restart: unless-stopped
+    volumes:
+      - "postgres:/var/lib/postgresql/data"
+      - "C:\\Users\\Sayan\\Desktop\\arcaptcha"
+    ports:
+      - "127.0.0.1:5432:5432"
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - pgadmin:/root/.pgadmin
+      - "C:\\Users\\Sayan\\Downloads\\arcaptcha-intern\\data:/home"
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    networks:
+      - arcaptcha-network
+    restart: unless-stopped
+    depends_on:
+      - postgres
+networks:
+  arcaptcha-network:
+volumes:
+  postgres:
+  pgadmin:
