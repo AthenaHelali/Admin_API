@@ -26,7 +26,7 @@ func (store *UserPostgres) Save(ctx context.Context, m *model.User) error {
 }
 func (store *UserPostgres) Get(ctx context.Context, id uint) (*model.User, error) {
 	user := new(model.User)
-	if err := store.db.Table("users").First(&user, 1); err != nil {
+	if err := store.db.Table("users").First(&user, id); err != nil {
 		log.Printf("user not found in Postgres: %v", err)
 		return nil, echo.ErrInternalServerError
 	}
@@ -83,5 +83,21 @@ func (store *UserPostgres) NewAdmin(ctx context.Context, m *model.Admin) error {
 		return echo.ErrInternalServerError
 	}
 	return nil
+
+}
+func (store *UserPostgres) DuplicateUser(id uint) bool {
+	var user model.User
+	if store.db.Table("users").Find(&user, id).RowsAffected > 0 {
+		return true
+	}
+	return false
+
+}
+func (store *UserPostgres) DuplicateAdmin(id uint) bool {
+	var user model.User
+	if store.db.Table("admins").Find(&user, id).RowsAffected > 0 {
+		return true
+	}
+	return false
 
 }
