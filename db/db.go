@@ -11,7 +11,7 @@ type UserPostgres struct {
 }
 
 func Init() *gorm.DB {
-	dbURL := "postgres://admin:123456@localhost:5432"
+	dbURL := "postgres://admin:123456@localhost:5432/postgres"
 	db, err := gorm.Open(postgres.Open(dbURL), &gorm.Config{})
 	if err != nil {
 		log.Fatalln(err)
