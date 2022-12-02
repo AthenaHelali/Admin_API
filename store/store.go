@@ -50,8 +50,13 @@ func (store *UserPostgres) GetAdminByEmail(email string) (*model.Admin, error) {
 	return admin, nil
 }
 func (store *UserPostgres) DeleteUser(id uint) (*model.User, error) {
+	user_plan := new(model.User_plan)
 	user := new(model.User)
-	if err := store.db.Table("users").Delete(&user, id); err != nil {
+	if err := store.db.Table("user_plans").Where("user_id = ?", id).Delete(&user_plan).Error; err != nil {
+		log.Printf("couldn't delete user plan with id : %v. %v", id, err)
+		return nil, echo.ErrInternalServerError
+	}
+	if err := store.db.Table("users").Delete(&user, id).Error; err != nil {
 		log.Printf("couldn't delete user with id : %v. %v", id, err)
 		return nil, echo.ErrInternalServerError
 	}

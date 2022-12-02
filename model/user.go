@@ -8,7 +8,7 @@ import (
 )
 
 type User struct {
-	ID                      uint      `json:"id" gorm:"primaryKey"`
+	ID                      uint      `json:"id" gorm:"primaryKey" gorm:"foreignKey"`
 	Created_at              time.Time `json:"created_at"`
 	Updated_at              time.Time `json:"updated_at"`
 	Oauth_id                string    `json:"oauth_id"`
