@@ -14,7 +14,7 @@ type User struct {
 	Oauth_id                string    `json:"oauth_id"`
 	Email                   string    `json:"email"`
 	Name                    string    `json:"name"`
-	Password                string    `json:"password"`
+	Password                string    `json:"password" validate:"min=1,max=16"`
 	Phone                   string    `json:"phone"`
 	Company_name            string    `json:"company_name"`
 	Job_title               string    `json:"job_title"`

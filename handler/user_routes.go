@@ -5,9 +5,47 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
+	"main.go/auth"
 	"main.go/model"
+	"main.go/store"
 )
+
+type Users struct {
+	Store store.UserPostgres
+}
+type reqId struct {
+	Id uint `json:"id"`
+}
+type userAuthRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+type UserResponse struct {
+	Id    uint   `json:"id"`
+	Email string `json:"email"`
+	Token string `json:"token"`
+}
+type userRequest struct {
+	ID                      uint   `json:"id"`
+	Email                   string `json:"email" validate:"email,required"`
+	Name                    string `json:"name"`
+	Password                string `json:"password" validate:"required,min=8,max=16"`
+	Ouath_id                string `json:"ouath_id"`
+	Phone                   string `json:"phone"`
+	Company_name            string `json:"company_name"`
+	Job_title               string `json:"job_title"`
+	Active                  bool   `json:"active"`
+	Subscribe_news          bool   `json:"subscribe_news"`
+	Subscribe_notifications bool   `json:"subscribe_notifications"`
+}
+
+func NewUserResponse(user *model.User) *UserResponse {
+	token, _ := auth.GenerateJWT(user.ID, user.Email)
+	ur := &UserResponse{Id: user.ID, Email: user.Email, Token: token}
+	return ur
+}
 
 func (u *Users) CreateUser(c echo.Context) error {
 	var req userRequest
@@ -15,6 +53,12 @@ func (u *Users) CreateUser(c echo.Context) error {
 		log.Printf("can't build request to user :%v", err)
 		return echo.ErrBadRequest
 	}
+	validate := validator.New()
+	err := validate.Struct(req)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "failed to validate struct")
+	}
+
 	pass, _ := model.HashPassword(req.Password)
 	newUser := &model.User{
 		ID:                      req.ID,
@@ -53,6 +97,11 @@ func (u *Users) UpdateUser(c echo.Context) error {
 	var input userRequest
 	if err := c.Bind(&input); err != nil {
 		echo.NewHTTPError(http.StatusBadRequest, "Invalid inputs", err)
+	}
+	validate := validator.New()
+	err := validate.Struct(input)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "failed to validate struct")
 	}
 	user, err := u.Store.GetUserByEmail(input.Email)
 	if err != nil {

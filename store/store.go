@@ -90,6 +90,30 @@ func (store *UserPostgres) NewAdmin(ctx context.Context, m *model.Admin) error {
 	return nil
 
 }
+func (store *UserPostgres) GetPlan(user_id uint) (*model.User_plan, error) {
+	var plan = new(model.User_plan)
+	if err := store.db.Where("user_id = ?", user_id).Find(&plan).Error; err != nil {
+		log.Printf("can't find plan  with user id : %v", user_id)
+		return nil, err
+	}
+	return plan, nil
+}
+func (store *UserPostgres) UpdatePlan(plan *model.User_plan) error {
+	if err := store.db.Save(&plan).Error; err != nil {
+		log.Printf("can't save the plan  with id : %v", plan.Plan_id)
+		return err
+	}
+	return nil
+}
+func (store *UserPostgres) DeletePlan(id uint) error {
+	plan := new(model.User_plan)
+	if err := store.db.Where("user_id = ?", id).Delete(&plan).Error; err != nil {
+		log.Printf("can't delete the user plan  with id : %v", id)
+		return err
+	}
+	return nil
+}
+
 func (store *UserPostgres) DuplicateUser(id uint) bool {
 	var user model.User
 	if store.db.Table("users").Find(&user, id).RowsAffected > 0 {

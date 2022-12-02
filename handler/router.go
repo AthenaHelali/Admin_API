@@ -9,46 +9,13 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"main.go/auth"
 	"main.go/model"
-	"main.go/store"
 )
 
-type Users struct {
-	Store store.UserPostgres
-}
-type reqId struct {
-	Id uint `json:"id"`
-}
 type WebId struct {
 	Id uint `json:"website_id"`
 }
-type userAuthRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-type UserResponse struct {
-	Id    uint   `json:"id"`
-	Email string `json:"email"`
-	Token string `json:"token"`
-}
-type userRequest struct {
-	ID                      uint   `json:"id"`
-	Email                   string `json:"email"`
-	Name                    string `json:"name"`
-	Password                string `json:"password"`
-	Ouath_id                string `json:"ouath_id"`
-	Phone                   string `json:"phone"`
-	Company_name            string `json:"company_name"`
-	Job_title               string `json:"job_title"`
-	Active                  bool   `json:"active"`
-	Subscribe_news          bool   `json:"subscribe_news"`
-	Subscribe_notifications bool   `json:"subscribe_notifications"`
-}
 
-func NewUserResponse(user *model.User) *UserResponse {
-	token, _ := auth.GenerateJWT(user.ID, user.Email)
-	ur := &UserResponse{Id: user.ID, Email: user.Email, Token: token}
-	return ur
-}
+
 func (u *Users) signUp(c echo.Context) error {
 	var req userRequest
 	if err := c.Bind(&req); err != nil {
@@ -111,6 +78,11 @@ func (a Users) Register(e *echo.Echo) {
 	w.Use(auth.JWT())
 	w.POST("/get", a.getWebsite)
 	w.POST("/update", a.updateWebsite)
+	p := e.Group("/plans")
+	p.Use(auth.JWT())
+	p.POST("/get", a.getPlan)
+	p.POST("/update", a.updatePlan)
+	p.POST("/delete", a.deletePlan)
 
 }
 func extractID(c echo.Context) uint {
