@@ -62,6 +62,14 @@ func (store *UserPostgres) DeleteUser(id uint) (*model.User, error) {
 	}
 	return user, nil
 }
+func (store *UserPostgres) DuplicateUser(id uint) bool {
+	var user model.User
+	if store.db.Table("users").Find(&user, id).RowsAffected > 0 {
+		return true
+	}
+	return false
+
+}
 
 func (store *UserPostgres) GetAll() ([]model.User, error) {
 	var users []model.User
@@ -90,6 +98,17 @@ func (store *UserPostgres) NewAdmin(ctx context.Context, m *model.Admin) error {
 	return nil
 
 }
+func (store *UserPostgres) DuplicateAdmin(id uint) bool {
+	var user model.User
+	if store.db.Table("admins").Find(&user, id).RowsAffected > 0 {
+		return true
+	}
+	return false
+
+}
+
+//plan functions
+
 func (store *UserPostgres) GetPlan(user_id uint) (*model.User_plan, error) {
 	var plan = new(model.User_plan)
 	if err := store.db.Where("user_id = ?", user_id).Find(&plan).Error; err != nil {
@@ -114,19 +133,22 @@ func (store *UserPostgres) DeletePlan(id uint) error {
 	return nil
 }
 
-func (store *UserPostgres) DuplicateUser(id uint) bool {
-	var user model.User
-	if store.db.Table("users").Find(&user, id).RowsAffected > 0 {
-		return true
-	}
-	return false
+//website functions
 
+func (store *UserPostgres) GetWebsite(id uint) (*model.Website, error) {
+	// /w1 := new(model.Website_v1)
+	web := new(model.Website)
+	if err := store.db.Find(&web).Preload("Website_v1").Error; err != nil {
+		fmt.Println(err)
+		log.Printf("can't get the website : %v", id)
+		return nil, err
+	}
+	return web, nil
 }
-func (store *UserPostgres) DuplicateAdmin(id uint) bool {
-	var user model.User
-	if store.db.Table("admins").Find(&user, id).RowsAffected > 0 {
-		return true
+func (store *UserPostgres) UpdateWebsite(web *model.Website) error {
+	if err := store.db.Save(&web).Error; err != nil {
+		log.Printf("can't save the website with id : %v", web.ID)
+		return err
 	}
-	return false
-
+	return nil
 }
