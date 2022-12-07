@@ -23,7 +23,7 @@ type WebsiteResponse struct {
 	Alert      bool             `json:"alert"`
 	Subdomain  bool             `json:"subdomain"`
 	Version    uint             `json:"version"`
-	Website_v1 model.Website_v1 `json:"web_v1"`
+	Website_v1 model.Website_v1 `:""`
 	Token      string           `json:"token"`
 }
 

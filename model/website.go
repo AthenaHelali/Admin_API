@@ -14,5 +14,4 @@ type Website struct {
 	Subdomain   bool      `json:"subdomain"`
 	Version     uint      `json:"version"`
 	Alert_limit uint      `json:"alert_limit"`
-	Website_v1  Website_v1
 }
