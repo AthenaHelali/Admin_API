@@ -6,15 +6,15 @@ services:
       POSTGRES_PASSWORD: 123456
       POSTGRES_DB: postgres
       POSTGRES_USER: admin
-    networks:
-      - arcaptcha-network
+    #networks:
+    #  - default
     restart: unless-stopped
     volumes:
       - "postgres:/var/lib/postgresql/data"
     ports:
       - "5432:5432"
   pgadmin:
-    container_name: pgadmin
+    container_name: pgadmin2
     image: dpage/pgadmin4
     environment:
       PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
@@ -29,6 +29,22 @@ services:
     restart: unless-stopped
     depends_on:
       - postgres
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    networks:
+      - default
+    ports:
+    - "1234:1234"
+    command: sh -c "/wait && /app/main"
+    environment:
+      - WAIT_HOSTS=postgres:5432
+      - WAIT_HOSTS_TIMEOUT=300
+      - WAIT_SLEEP_INTERVAL=30
+      - WAIT_HOST_CONNECT_TIMEOUT=30
 networks:
   arcaptcha-network:
 volumes:
