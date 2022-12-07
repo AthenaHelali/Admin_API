@@ -15,8 +15,8 @@ import (
 type Users struct {
 	Store store.UserPostgres
 }
-type reqId struct {
-	Id uint `json:"id"`
+type reqEmail struct {
+	Email string `json:"email"`
 }
 type userAuthRequest struct {
 	Email    string `json:"email"`
@@ -31,7 +31,7 @@ type userRequest struct {
 	ID                      uint   `json:"id"`
 	Email                   string `json:"email" validate:"email,required"`
 	Name                    string `json:"name"`
-	Password                string `json:"password" validate:"required,min=8,max=16"`
+	Password                string `json:"password" validate:"min=8,max=16"`
 	Ouath_id                string `json:"ouath_id"`
 	Phone                   string `json:"phone"`
 	Company_name            string `json:"company_name"`
@@ -42,8 +42,8 @@ type userRequest struct {
 }
 
 func NewUserResponse(user *model.User) *UserResponse {
-	token, _ := auth.GenerateJWT(user.ID, user.Email)
-	ur := &UserResponse{Id: user.ID, Email: user.Email, Token: token}
+	token, _ := auth.GenerateJWT(user.UserID, user.Email)
+	ur := &UserResponse{Id: user.UserID, Email: user.Email, Token: token}
 	return ur
 }
 
@@ -61,7 +61,7 @@ func (u *Users) CreateUser(c echo.Context) error {
 
 	pass, _ := model.HashPassword(req.Password)
 	newUser := &model.User{
-		ID:                      req.ID,
+		UserID:                  req.ID,
 		Email:                   req.Email,
 		Created_at:              time.Now(),
 		Updated_at:              time.Now(),
@@ -75,10 +75,7 @@ func (u *Users) CreateUser(c echo.Context) error {
 		Subscribe_news:          req.Subscribe_news,
 		Subscribe_notifications: req.Subscribe_notifications,
 	}
-	if u.Store.DuplicateUser(req.ID) {
-		log.Printf("this id already exists in database : %v", req.ID)
-		return echo.ErrBadRequest
-	}
+
 	if err := u.Store.Save(c.Request().Context(), newUser); err != nil {
 		log.Printf("can't signup user with id : %v", req.ID)
 		return echo.ErrBadRequest
@@ -125,13 +122,13 @@ func (u *Users) UpdateUser(c echo.Context) error {
 
 }
 func (u *Users) DeleteUser(c echo.Context) error {
-	var req reqId
+	var req reqEmail
 	if err := c.Bind(&req); err != nil {
 		log.Printf("can't build request to user :%v", err)
 		return echo.ErrBadRequest
 
 	}
-	deletedUser, err := u.Store.DeleteUser(req.Id)
+	deletedUser, err := u.Store.DeleteUser(req.Email)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "can't delete user")
 	}

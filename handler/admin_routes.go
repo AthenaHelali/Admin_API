@@ -13,16 +13,11 @@ import (
 func (u *Users) SignUp(c echo.Context) error {
 	var req userRequest
 	if err := c.Bind(&req); err != nil {
-		log.Printf("can't build request to user :%v", err)
-		return echo.ErrBadRequest
-	}
-	if u.Store.DuplicateAdmin(req.ID) {
-		log.Printf("this id already exists in database : %v", req.ID)
+		log.Printf("can't build request to admin user :%v", err)
 		return echo.ErrBadRequest
 	}
 	pass, _ := model.HashPassword(req.Password)
 	NewAdmin := &model.Admin{
-		ID:       req.ID,
 		Password: pass,
 		Email:    req.Email,
 	}

@@ -8,13 +8,13 @@ import (
 )
 
 type User struct {
-	ID                      uint      `json:"id" gorm:"primaryKey" gorm:"foreignKey"`
+	UserID                      uint      `json:"id" gorm:"primaryKey" gorm:"foreignKey"`
 	Created_at              time.Time `json:"created_at"`
 	Updated_at              time.Time `json:"updated_at"`
 	Oauth_id                string    `json:"oauth_id"`
 	Email                   string    `json:"email"`
 	Name                    string    `json:"name"`
-	Password                string    `json:"password" validate:"min=1,max=16"`
+	Password                string    `json:"password" validate:"min=8,max=16"`
 	Phone                   string    `json:"phone"`
 	Company_name            string    `json:"company_name"`
 	Job_title               string    `json:"job_title"`

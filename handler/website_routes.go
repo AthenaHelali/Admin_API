@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -51,13 +50,10 @@ func (u *Users) getWebsite(c echo.Context) error {
 	if err := c.Bind(&input); err != nil {
 		echo.NewHTTPError(http.StatusBadRequest, "Invalid inputs", err)
 	}
-	fmt.Println(input)
 	web, err := u.Store.GetWebsite(input.Id)
 	if err != nil {
 		return echo.ErrBadRequest
 	}
-	fmt.Println(web)
-
 	return c.JSON(http.StatusOK, NewWebResponse(web))
 
 }
@@ -68,7 +64,6 @@ func (u *Users) updateWebsite(c echo.Context) error {
 	}
 	newWeb := &model.Website{
 		ID:         input.ID,
-		User_id:    input.User_id,
 		Site_key:   input.Site_key,
 		Secret_key: input.Secret_key,
 		Label:      input.Label,

@@ -51,7 +51,7 @@ func (u *Users) updatePlan(c echo.Context) error {
 		echo.NewHTTPError(http.StatusInternalServerError, "can't get plan", err)
 	}
 	newPlan := model.User_plan{
-		ID:         input.ID,
+		ID:         plan.ID,
 		User_id:    input.User_id,
 		Plan_id:    input.Plan_id,
 		Updated_at: time.Now(),
@@ -68,8 +68,9 @@ func (u *Users) deletePlan(c echo.Context) error {
 	if err := c.Bind(&input); err != nil {
 		echo.NewHTTPError(http.StatusBadRequest, "Invalid inputs", err)
 	}
-	if err := u.Store.DeletePlan(input.User_id); err != nil {
+	plan, err := u.Store.DeletePlan(input.User_id)
+	if err != nil {
 		echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, NewPlanResponse(new(model.User_plan)))
+	return c.JSON(http.StatusOK, NewPlanResponse(&plan))
 }
