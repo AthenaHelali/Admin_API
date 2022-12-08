@@ -4,7 +4,7 @@ Go RESTful API app with JWT Authentication backed by PostgreSQL
 > docker compose up
 
 ## build with
-+ gorm
+> + gorm
 + postgresql
 + echo
 + pgadmin
