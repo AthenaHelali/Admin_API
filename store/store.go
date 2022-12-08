@@ -19,7 +19,9 @@ func NewUserPostgres(database *gorm.DB) *UserPostgres {
 	return &UserPostgres{db: database}
 }
 func (store *UserPostgres) Save(ctx context.Context, m *model.User) error {
-	if err := store.db.Table("users").Create(m).Error; err != nil {
+	fmt.Println("akbar")
+	fmt.Println(m)
+	if err := store.db.Create(&m).Error; err != nil {
 		log.Printf("user creation on Postgres failed: %v", err)
 		return echo.ErrInternalServerError
 	}
@@ -61,7 +63,6 @@ func (store *UserPostgres) DeleteUser(email string) (*model.User, error) {
 func (store *UserPostgres) GetAll() ([]model.User, error) {
 	var users []model.User
 	if err := store.db.Find(&users).Error; err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	return users, nil
@@ -74,10 +75,6 @@ func (store *UserPostgres) Update(ctx context.Context, m *model.User) error {
 }
 
 func (store *UserPostgres) NewAdmin(ctx context.Context, m *model.Admin) error {
-	if !store.db.Migrator().HasTable(&model.Admin{}) {
-
-		store.db.Migrator().CreateTable(&model.Admin{})
-	}
 	if err := store.db.Table("admins").Create(m).Error; err != nil {
 		log.Printf("admin sign up on Postgres failed: %v", err)
 		return echo.ErrInternalServerError
@@ -114,17 +111,19 @@ func (store *UserPostgres) DeletePlan(id uint) (model.User_plan, error) {
 
 //website functions
 
-func (store *UserPostgres) GetWebsite(id uint) (*model.Website, error) {
+func (store *UserPostgres) GetWebsite(web_id uint) (*model.Website, error) {
 	web := new(model.Website)
-	fmt.Println(id)
-	if err := store.db.Find(&web, id).Error; err != nil {
-		log.Printf("can't get the website : %v", id)
+	fmt.Println(web_id)
+	if err := store.db.Preload("Website_v1").Find(&web, web_id).Error; err != nil {
+		log.Printf("can't get the website : %v", web_id)
 		return nil, err
 	}
+	fmt.Println(web)
 	return web, nil
 }
 func (store *UserPostgres) UpdateWebsite(web *model.Website) error {
-	if err := store.db.Save(&web).Error; err != nil {
+	website := new(model.Website)
+	if err := store.db.Model(&website).Where("id = ?", web.ID).Omit("id", "created_at", "user_id", "site_key", "secret_key").Updates(web).Error; err != nil {
 		log.Printf("can't save the website with id : %v", web.ID)
 		return err
 	}

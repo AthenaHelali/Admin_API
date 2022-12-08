@@ -77,7 +77,7 @@ func (u *Users) CreateUser(c echo.Context) error {
 	}
 
 	if err := u.Store.Save(c.Request().Context(), newUser); err != nil {
-		log.Printf("can't signup user with id : %v", req.ID)
+		log.Printf("can't create user with id : %v", req.ID)
 		return echo.ErrBadRequest
 	}
 	return c.JSON(http.StatusCreated, newUser)
