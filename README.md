@@ -5,6 +5,6 @@ Go RESTful API app with JWT Authentication backed by PostgreSQL
 
 ## build with
 > + gorm
-+ postgresql
-+ echo
-+ pgadmin
+> + postgresql
+> + echo
+> + pgadmin
